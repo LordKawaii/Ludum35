@@ -6,6 +6,7 @@ public class PlayerStates {
     public bool insidePlatform = false;
     public bool canEnterWater = false;
     public bool canGlide = false;
+    public bool isInWater = false;
 
     public float health = 100;
 

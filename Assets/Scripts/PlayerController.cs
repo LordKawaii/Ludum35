@@ -11,7 +11,7 @@ public enum SpriteActions
 }
 
 public class PlayerController : MonoBehaviour {
-    const float waterJumpDevider = 2.3f;
+    const float waterJumpDevider = 1.5f;
 
     public float flapForce = 2.3f;
     public float speed = 1;
@@ -130,7 +130,7 @@ public class PlayerController : MonoBehaviour {
 
             gameObject.transform.position = new Vector3(transform.position.x + horSpeed, transform.position.y);
         }
-        else if (!playerState.isjumping)
+        else 
             ChangeSprite(SpriteActions.Stand);
 
         if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && !playerState.isjumping)
@@ -138,22 +138,38 @@ public class PlayerController : MonoBehaviour {
             //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + jumpSpeed);
             rb2d.AddForce(Vector2.up * jumpSpeed);
             playerState.isjumping = true;
+            ChangeSprite(SpriteActions.Stand);
         }
 
-        if ((Input.GetAxis("Vertical") > 0 || Input.GetButtonDown("Fire1")) && playerState.canGlide && playerState.isjumping && !playerState.hasFlapped)
+        if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && playerState.isInWater && rb2d.velocity.y < 5)
+        {
+            //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + jumpSpeed);
+            rb2d.AddForce(Vector2.up * 80);
+            ChangeSprite(SpriteActions.Stand);
+            print("Vertical Velocity: " + rb2d.velocity.y);
+        }
+
+        if ((Input.GetButtonDown("Vertical") || Input.GetButtonDown("Fire1")) && playerState.canGlide && playerState.isjumping && !playerState.hasFlapped)
         {
             rb2d.AddForce(Vector2.up * flapForce);
             playerState.hasFlapped = true;
             if (jumpParticals != null)
                 jumpParticals.Play();
+            ChangeSprite(SpriteActions.Stand);
         }
-        if ((Input.GetAxis("Vertical") == 0 && !Input.GetButton("Fire1")) )
+        if (!Input.GetButton("Vertical") && !Input.GetButton("Fire1"))
             playerState.hasFlapped = false;
 
         if (playerState.isInWater && !playerState.canEnterWater)
         {
             rb2d.AddForce(Vector2.up * buoyancy);
             //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + buoyancy);
+        }
+
+        if (rb2d != null)
+        {
+            if (rb2d.velocity.y < -1f)
+                ChangeSprite(SpriteActions.Fall);
         }
     }
 

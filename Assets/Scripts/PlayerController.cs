@@ -113,6 +113,7 @@ public class PlayerController : MonoBehaviour {
         {
             rb2d.AddForce(Vector2.up * flapForce);
             playerState.hasFlapped = true;
+            print("Flapped");
         }
         if (Input.GetAxis("Vertical") == 0 && Input.GetButtonUp("Fire1"))
             playerState.hasFlapped = false;

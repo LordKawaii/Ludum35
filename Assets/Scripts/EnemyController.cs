@@ -47,6 +47,8 @@ public class EnemyController : MonoBehaviour {
             ChangeDirection();
             rb2d.isKinematic = false;
         }
+		else if (hit.collider.tag != "Ground" && hit.collider.tag != "Platform" && hit.collider.tag != "Player")
+			ChangeDirection();
         else if (hit.collider.tag == "Ground" || hit.collider.tag == "Platform")
         {
             rb2d.isKinematic = true;

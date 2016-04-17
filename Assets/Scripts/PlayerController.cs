@@ -11,19 +11,19 @@ public class PlayerController : MonoBehaviour {
     public float waterGrav = .03f;
     public float InvulnTime = 1f;
     public float InvulnFlashTime = .2f;
+    public ParticleSystem jumpParticals;
+    public ParticleSystem hurtParticals;
 
     [HideInInspector]
     public PlayerStates playerState;
 
     float jumpSpeed;
-    ParticleSystem jumpParticals;
 
     Rigidbody2D rb2d;
 	// Use this for initialization
 	void Start () {
         playerState = new PlayerStates();
         jumpSpeed = startingJumpSpeed;
-        jumpParticals = GetComponentInChildren<ParticleSystem>();
 
     }
 	
@@ -87,6 +87,8 @@ public class PlayerController : MonoBehaviour {
                     playerState.isInvuln = true;
                     playerState.health -= col.gameObject.GetComponent<EnemyController>().damageAmount;
                     StartCoroutine(Invuln());
+                    if (hurtParticals != null)
+                        hurtParticals.Play();
                 }
             }
         }
@@ -115,7 +117,8 @@ public class PlayerController : MonoBehaviour {
         {
             rb2d.AddForce(Vector2.up * flapForce);
             playerState.hasFlapped = true;
-            jumpParticals.Play();
+            if (jumpParticals != null)
+                jumpParticals.Play();
         }
         if ((Input.GetAxis("Vertical") == 0 && !Input.GetButton("Fire1")) )
             playerState.hasFlapped = false;

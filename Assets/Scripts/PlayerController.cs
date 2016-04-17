@@ -142,7 +142,7 @@ public class PlayerController : MonoBehaviour {
 
     public IEnumerator Invuln()
     {
-        MeshRenderer renderer = GetComponent<MeshRenderer>();
+		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
         float timeTillComplete = Time.time + InvulnTime;
         
         while (Time.time < timeTillComplete)

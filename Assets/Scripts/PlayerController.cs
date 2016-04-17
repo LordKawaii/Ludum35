@@ -1,5 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
+public enum SpriteActions
+{
+    Stand,
+    WalkRight,
+    WalkLeft,
+    Fall
+}
 
 public class PlayerController : MonoBehaviour {
     const float waterJumpDevider = 2.3f;
@@ -14,16 +23,22 @@ public class PlayerController : MonoBehaviour {
     public ParticleSystem jumpParticals;
     public ParticleSystem hurtParticals;
 
+    public List<Sprite> landSprites;
+    public List<Sprite> seaSprites;
+    public List<Sprite> airSprites;
+
     [HideInInspector]
     public PlayerStates playerState;
 
     float jumpSpeed;
+    SpriteRenderer spriteRend;
 
     Rigidbody2D rb2d;
 	// Use this for initialization
 	void Start () {
         playerState = new PlayerStates();
         jumpSpeed = startingJumpSpeed;
+        spriteRend = GetComponent<SpriteRenderer>();
 
     }
 	
@@ -101,10 +116,17 @@ public class PlayerController : MonoBehaviour {
         {
             float horSpeed = speed;
             if (Input.GetAxis("Horizontal") < 0)
+            {
+                ChangeSprite(SpriteActions.WalkLeft);
                 horSpeed *= -1;
+            }
+            else
+                ChangeSprite(SpriteActions.WalkRight);
 
             gameObject.transform.position = new Vector3(transform.position.x + horSpeed, transform.position.y);
         }
+        else if (!playerState.isjumping)
+            ChangeSprite(SpriteActions.Stand);
 
         if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && !playerState.isjumping)
         {
@@ -144,6 +166,46 @@ public class PlayerController : MonoBehaviour {
             playerState.isjumping = false;
             jumpSpeed /= waterJumpDevider;
         }
+    }
+
+    void ChangeSprite(SpriteActions action)
+    {
+        switch (action)
+        {
+            case SpriteActions.Stand:
+                spriteRend.sprite = GetCurrentSpriteList()[0];
+                if (spriteRend.flipX == true)
+                    spriteRend.flipX = false;
+                break;
+
+            case SpriteActions.WalkRight:
+                spriteRend.sprite = GetCurrentSpriteList()[1];
+                if (spriteRend.flipX == true)
+                    spriteRend.flipX = false;
+                break;
+
+            case SpriteActions.WalkLeft:
+                spriteRend.sprite = GetCurrentSpriteList()[1];
+                if (spriteRend.flipX == false)
+                    spriteRend.flipX = true;
+                break;
+
+            case SpriteActions.Fall:
+                spriteRend.sprite = GetCurrentSpriteList()[2];
+                if (spriteRend.flipX == true)
+                    spriteRend.flipX = false;
+                break;
+        }
+    }
+
+    List<Sprite> GetCurrentSpriteList()
+    {
+        if (playerState.canEnterWater)
+            return seaSprites;
+        else if (playerState.canGlide)
+            return airSprites;
+        else
+            return landSprites;
     }
 
     public IEnumerator Invuln()

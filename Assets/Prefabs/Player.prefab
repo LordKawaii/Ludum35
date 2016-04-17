@@ -84,7 +84,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 118038}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.46, y: -0.97746277, z: 0.6484375}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 421810}
@@ -142,6 +142,18 @@ MonoBehaviour:
   InvulnFlashTime: 0.2
   jumpParticals: {fileID: 19889980}
   hurtParticals: {fileID: 19818336}
+  landSprites:
+  - {fileID: 21300000, guid: 6353effe27c824f0a9dd3ca0f4d531bd, type: 3}
+  - {fileID: 21300000, guid: 87c22c9aa5b644d45b140775fdfba623, type: 3}
+  - {fileID: 21300000, guid: 339da8277c89742568dd1a754d7fdf07, type: 3}
+  seaSprites:
+  - {fileID: 21300000, guid: 308f799d48b9f439aa3ef5f45961c66a, type: 3}
+  - {fileID: 21300000, guid: ee31ee903daf64ca48c5096b7f71c240, type: 3}
+  - {fileID: 21300000, guid: 3c85ad13f92f94b78a3e7809f3411794, type: 3}
+  airSprites:
+  - {fileID: 21300000, guid: 2b55152a1649a4427b1e1d0770d9d305, type: 3}
+  - {fileID: 21300000, guid: d3f21f1bf284a4f36a74e8f6d74f0c7a, type: 3}
+  - {fileID: 21300000, guid: be42ba86dcd5e4be0a71fa6abd8ae2ee, type: 3}
 --- !u!198 &19818336
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -360,7 +372,7 @@ ParticleSystem:
         rgba: 4278190335
       minMaxState: 0
     startSize:
-      scalar: 0.2
+      scalar: 0.5
       maxCurve:
         serializedVersion: 2
         m_Curve:

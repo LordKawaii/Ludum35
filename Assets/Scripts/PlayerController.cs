@@ -111,7 +111,7 @@ public class PlayerController : MonoBehaviour {
 
         if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && playerState.canGlide && playerState.isjumping && !playerState.hasFlapped)
         {
-            rb2d.AddForce(Vector2.up * jumpSpeed/waterJumpDevider);
+            rb2d.AddForce(Vector2.up * flapForce);
             playerState.hasFlapped = true;
         }
         if (Input.GetAxis("Vertical") == 0 && Input.GetButtonUp("Fire1"))

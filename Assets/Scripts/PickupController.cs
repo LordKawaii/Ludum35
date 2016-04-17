@@ -27,9 +27,15 @@ public class PickupController : MonoBehaviour {
         {
             PlayerController player = GameObject.FindGameObjectWithTag(col.tag).GetComponent<PlayerController>();
             if (pickupType == PickupType.Water)
+            { 
                 player.playerState.canEnterWater = true;
+                player.playerState.canGlide = false;
+            }
             if (pickupType == PickupType.Flight)
+            { 
                 player.playerState.canGlide = true;
+                player.playerState.canEnterWater = false;
+            }
             Destroy(gameObject);
         }
     }

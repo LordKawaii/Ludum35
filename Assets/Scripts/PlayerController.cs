@@ -160,9 +160,9 @@ public class PlayerController : MonoBehaviour {
         if (!Input.GetButton("Vertical") && !Input.GetButton("Fire1"))
             playerState.hasFlapped = false;
 
-        if (playerState.isInWater && !playerState.canEnterWater)
+        if (playerState.isInWater && playerState.canEnterWater && Input.GetAxis("Vertical") < 0 && rb2d.velocity.y > -3)
         {
-            rb2d.AddForce(Vector2.up * buoyancy);
+            rb2d.AddForce(Vector2.down * 80);
             //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + buoyancy);
         }
 

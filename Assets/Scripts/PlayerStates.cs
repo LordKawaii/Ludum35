@@ -7,6 +7,8 @@ public class PlayerStates {
     public bool canEnterWater = false;
     public bool canGlide = false;
     public bool isInWater = false;
+    public bool hasFlapped = false;
+    public bool isInvuln = false;
 
     public float health = 100;
 

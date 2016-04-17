@@ -1,11 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum PickupType
+{
+    Water,
+    Flight
+}
+
 public class PickupController : MonoBehaviour {
     public float rotationSpeed = 1f;
+    public PickupType pickupType;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 	
 	}
 	
@@ -19,7 +26,10 @@ public class PickupController : MonoBehaviour {
         if (col.tag == "Player")
         {
             PlayerController player = GameObject.FindGameObjectWithTag(col.tag).GetComponent<PlayerController>();
-            player.playerState.canEnterWater = true;
+            if (pickupType == PickupType.Water)
+                player.playerState.canEnterWater = true;
+            if (pickupType == PickupType.Flight)
+                player.playerState.canGlide = true;
             Destroy(gameObject);
         }
     }

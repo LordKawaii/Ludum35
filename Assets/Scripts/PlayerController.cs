@@ -4,10 +4,13 @@ using System.Collections;
 public class PlayerController : MonoBehaviour {
     const float waterJumpDevider = 2.3f;
 
+    public float flapForce = 2.3f;
     public float speed = 1;
     public float startingJumpSpeed = 1;
     public float buoyancy = 100f;
     public float waterGrav = .03f;
+    public float InvulnTime = 1f;
+    public float InvulnFlashTime = .2f;
 
     [HideInInspector]
     public PlayerStates playerState;
@@ -69,10 +72,28 @@ public class PlayerController : MonoBehaviour {
 
     }
 
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.tag == "Enemy")
+        {
+            if (!playerState.isInvuln)
+            {
+                if (playerState.health <= 0)
+                    Destroy(gameObject);
+                else
+                { 
+                    playerState.isInvuln = true;
+                    playerState.health -= col.gameObject.GetComponent<EnemyController>().damageAmount;
+                    StartCoroutine(Invuln());
+                }
+            }
+        }
+
+    }
 
     void MovePlayer()
     {
-        if (Input.GetButton("Horizontal"))
+        if (Input.GetAxis("Horizontal") != 0)
         {
             float horSpeed = speed;
             if (Input.GetAxis("Horizontal") < 0)
@@ -81,12 +102,20 @@ public class PlayerController : MonoBehaviour {
             gameObject.transform.position = new Vector3(transform.position.x + horSpeed, transform.position.y);
         }
 
-        if (Input.GetAxis("Vertical") > 0 && !playerState.isjumping)
+        if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && !playerState.isjumping)
         {
             //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + jumpSpeed);
             rb2d.AddForce(Vector2.up * jumpSpeed);
             playerState.isjumping = true;
         }
+
+        if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && playerState.canGlide && playerState.isjumping && !playerState.hasFlapped)
+        {
+            rb2d.AddForce(Vector2.up * jumpSpeed/waterJumpDevider);
+            playerState.hasFlapped = true;
+        }
+        if (Input.GetAxis("Vertical") == 0 && Input.GetButtonUp("Fire1"))
+            playerState.hasFlapped = false;
 
         if (playerState.isInWater && !playerState.canEnterWater)
         {
@@ -109,6 +138,26 @@ public class PlayerController : MonoBehaviour {
             playerState.isjumping = false;
             jumpSpeed /= waterJumpDevider;
         }
+    }
+
+    public IEnumerator Invuln()
+    {
+        MeshRenderer renderer = GetComponent<MeshRenderer>();
+        float timeTillComplete = Time.time + InvulnTime;
+        
+        while (Time.time < timeTillComplete)
+        {
+            if (renderer.enabled == true)
+                renderer.enabled = false;
+            else renderer.enabled = true;
+            yield return new WaitForSeconds(InvulnFlashTime);
+        }
+
+        if (renderer.enabled == false)
+            renderer.enabled = true;
+        playerState.isInvuln = false;
+
+        yield return null;
     }
 
 }

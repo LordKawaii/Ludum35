@@ -6,12 +6,12 @@ public class GameController : MonoBehaviour {
     public Text healthText;
     public GameObject player;
 
+    PlayerController playerCon;
 
-
-	// Use this for initialization
-	void Start () {
-	
-	}
+    // Use this for initialization
+    void Start () {
+	    playerCon = player.GetComponent<PlayerController>();
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -21,6 +21,9 @@ public class GameController : MonoBehaviour {
 
     void UpDateHealth ()
     {
-        
+        if (player != null)
+        {
+            healthText.text = "Health: " + playerCon.playerState.health;
+        }
     }
 }

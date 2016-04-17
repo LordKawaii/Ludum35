@@ -113,6 +113,23 @@ public class PlayerController : MonoBehaviour {
             }
         }
 
+        if (col.tag == "JumpingEnemy")
+        {
+            if (!playerState.isInvuln)
+            {
+                if (playerState.health <= 0)
+                    Destroy(gameObject);
+                else
+                {
+                    playerState.isInvuln = true;
+                    playerState.health -= col.gameObject.GetComponent<JumpingEnemyController>().damageAmount;
+                    StartCoroutine(Invuln());
+                    if (hurtParticals != null)
+                        hurtParticals.Play();
+                }
+            }
+        }
+
     }
 
     void MovePlayer()

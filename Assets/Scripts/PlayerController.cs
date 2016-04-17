@@ -146,7 +146,6 @@ public class PlayerController : MonoBehaviour {
             //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + jumpSpeed);
             rb2d.AddForce(Vector2.up * 80);
             ChangeSprite(SpriteActions.Stand);
-            print("Vertical Velocity: " + rb2d.velocity.y);
         }
 
         if ((Input.GetButtonDown("Vertical") || Input.GetButtonDown("Fire1")) && playerState.canGlide && playerState.isjumping && !playerState.hasFlapped)
@@ -160,10 +159,17 @@ public class PlayerController : MonoBehaviour {
         if (!Input.GetButton("Vertical") && !Input.GetButton("Fire1"))
             playerState.hasFlapped = false;
 
-        if (playerState.isInWater && playerState.canEnterWater && Input.GetAxis("Vertical") < 0 && rb2d.velocity.y > -3)
+        if (playerState.isInWater && !playerState.canEnterWater)
         {
-            rb2d.AddForce(Vector2.down * 80);
+            rb2d.AddForce(Vector2.up * buoyancy);
             //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + buoyancy);
+        }
+
+        if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && playerState.isInWater && rb2d.velocity.y < 5)
+        {
+            //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + jumpSpeed);
+            rb2d.AddForce(Vector2.up * 80);
+            ChangeSprite(SpriteActions.Stand);
         }
 
         if (rb2d != null)

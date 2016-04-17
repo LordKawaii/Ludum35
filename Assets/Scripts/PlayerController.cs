@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour {
     public float waterGrav = .03f;
     public float InvulnTime = 1f;
     public float InvulnFlashTime = .2f;
+	public float waterSlowdown = .8f;
     public ParticleSystem jumpParticals;
     public ParticleSystem hurtParticals;
 
@@ -26,7 +27,7 @@ public class PlayerController : MonoBehaviour {
         jumpSpeed = startingJumpSpeed;
 
     }
-	
+
 	// Update is called once per frame
 	void Update () {
         rb2d = GetComponent<Rigidbody2D>();
@@ -59,7 +60,6 @@ public class PlayerController : MonoBehaviour {
                 jumpSpeed /= waterJumpDevider;
             playerState.isInWater = true;
         }
-
     }
 
     void OnTriggerExit2D(Collider2D col)
@@ -76,6 +76,11 @@ public class PlayerController : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D col)
     {
+		if (col.tag == "Water") 
+		{
+			rb2d.velocity = rb2d.velocity.normalized * waterSlowdown;
+		}
+		
         if (col.tag == "Enemy")
         {
             if (!playerState.isInvuln)
@@ -83,7 +88,7 @@ public class PlayerController : MonoBehaviour {
                 if (playerState.health <= 0)
                     Destroy(gameObject);
                 else
-                { 
+                {
                     playerState.isInvuln = true;
                     playerState.health -= col.gameObject.GetComponent<EnemyController>().damageAmount;
                     StartCoroutine(Invuln());
@@ -150,7 +155,7 @@ public class PlayerController : MonoBehaviour {
     {
 		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
         float timeTillComplete = Time.time + InvulnTime;
-        
+
         while (Time.time < timeTillComplete)
         {
             if (renderer.enabled == true)

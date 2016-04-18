@@ -10,13 +10,15 @@ public class SwimmingEnemyController : MonoBehaviour {
 	public float maxMovement = 1f;
 	public float moveSpeed = 1f;
 
+    Vector2 startingPos;
 	float timeTillMove;
 	Vector2 destination;
 	SpriteRenderer spriteRend;
 
 	// Use this for initialization
 	void Start () {
-		timeTillMove = Time.time + Random.Range(minTimeToMove, maxTimeToMove);
+        startingPos = transform.position;
+        timeTillMove = Time.time + Random.Range(minTimeToMove, maxTimeToMove);
 		spriteRend = GetComponent<SpriteRenderer>();
 	}
 	
@@ -46,9 +48,9 @@ public class SwimmingEnemyController : MonoBehaviour {
 	{
 		if (col.tag == "Water")
 		{
-			destination = new Vector2(col.transform.position.x, col.transform.position.y);
+            destination = startingPos;
 
-			if ((col.transform.position.x - transform.position.x) < 0)
+            if ((col.transform.position.x - transform.position.x) < 0)
 				spriteRend.flipX = true;
 			else
 				spriteRend.flipX = false;

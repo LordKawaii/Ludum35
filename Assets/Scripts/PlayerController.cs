@@ -28,18 +28,26 @@ public class PlayerController : MonoBehaviour {
     public List<Sprite> seaSprites;
     public List<Sprite> airSprites;
 
+    public List<AudioClip> hurtSounds;
+    public List<AudioClip> jumpSounds;
+    public List<AudioClip> flySounds;
+    public AudioClip enterWater;
+    public AudioClip exitWater;
+
     [HideInInspector]
     public PlayerStates playerState;
 
     float jumpSpeed;
     SpriteRenderer spriteRend;
-
+    AudioSource auSource;
     Rigidbody2D rb2d;
+    bool hasLeftGround = false;
 	// Use this for initialization
 	void Start () {
         playerState = new PlayerStates();
         jumpSpeed = startingJumpSpeed;
         spriteRend = GetComponent<SpriteRenderer>();
+        auSource = GetComponent<AudioSource>();
 
     }
 
@@ -85,6 +93,9 @@ public class PlayerController : MonoBehaviour {
             if (playerState.isInWater)
                 jumpSpeed *= waterJumpDevider;
             playerState.isInWater = false;
+            auSource.clip = exitWater;
+            if (!auSource.isPlaying)
+                auSource.Play();
         }
 
     }
@@ -94,22 +105,30 @@ public class PlayerController : MonoBehaviour {
 		if (col.tag == "Water") 
 		{
 			rb2d.velocity = rb2d.velocity.normalized * waterSlowdown;
-		}
+            auSource.clip = enterWater;
+            if (!auSource.isPlaying)
+                auSource.Play();
+        }
 		
         if (col.tag == "Enemy" || col.tag == "JumpingEnemy")
         {
             if (!playerState.isInvuln)
             {
-                if (playerState.health <= 0)
-                    Destroy(gameObject);
-                else
                 {
                     playerState.isInvuln = true;
                     playerState.health -= col.gameObject.GetComponent<EnemyStates>().damage;
                     StartCoroutine(Invuln());
                     if (hurtParticals != null)
                         hurtParticals.Play();
+                    auSource.clip = hurtSounds[Random.Range(0, jumpSounds.Count)];
+                    if (!auSource.isPlaying)
+                        auSource.Play();
                 }
+            }
+
+            if (playerState.health <= 0)
+            { 
+                Destroy(gameObject);
             }
         }
 
@@ -139,22 +158,40 @@ public class PlayerController : MonoBehaviour {
             rb2d.AddForce(Vector2.up * jumpSpeed);
             playerState.isjumping = true;
             ChangeSprite(SpriteActions.Stand);
+            auSource.clip = jumpSounds[Random.Range(0, jumpSounds.Count)];
+            if (!auSource.isPlaying)
+                auSource.Play();
         }
 
-        if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && playerState.isInWater && rb2d.velocity.y < 5)
+        if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && playerState.isInWater && rb2d.velocity.y < 3)
         {
             //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + jumpSpeed);
             rb2d.AddForce(Vector2.up * 80);
             ChangeSprite(SpriteActions.Stand);
         }
 
-        if ((Input.GetButtonDown("Vertical") || Input.GetButtonDown("Fire1")) && playerState.canGlide && playerState.isjumping && !playerState.hasFlapped)
+        if ((Input.GetAxis("Vertical") < 0) && playerState.isInWater && playerState.canEnterWater && rb2d.velocity.y > -3)
         {
+            //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + jumpSpeed);
+            rb2d.AddForce(Vector2.down * 80);
+            ChangeSprite(SpriteActions.Fall);
+        }
+
+        if ((Input.GetButtonDown("Vertical") || Input.GetButtonDown("Fire1")) && !(Input.GetAxis("Vertical") < 0) && playerState.canGlide && playerState.isjumping && !playerState.hasFlapped)
+        {
+            if (rb2d.velocity.y < -1)
+            {
+                rb2d.velocity = new Vector2(rb2d.velocity.x, -1);
+            }
             rb2d.AddForce(Vector2.up * flapForce);
             playerState.hasFlapped = true;
             if (jumpParticals != null)
                 jumpParticals.Play();
             ChangeSprite(SpriteActions.Stand);
+
+            auSource.clip = flySounds[Random.Range(0, jumpSounds.Count)];
+            if (!auSource.isPlaying)
+                auSource.Play();
         }
         if (!Input.GetButton("Vertical") && !Input.GetButton("Fire1"))
             playerState.hasFlapped = false;
@@ -181,9 +218,14 @@ public class PlayerController : MonoBehaviour {
 
     void CheckForGround()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up, .6f); //transform.lossyScale.y/2 +
-        if (hit.collider != null && !playerState.insidePlatform && (hit.collider.tag == "Ground" || hit.collider.tag == "Platform"))
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up, GetComponent<Renderer>().bounds.size.y/2 +.1f); //transform.lossyScale.y/2 +
+        if (hit.collider == null)
         {
+            hasLeftGround = true;
+        }
+        if (hit.collider != null && !playerState.insidePlatform && hasLeftGround && (hit.collider.tag == "Ground" || hit.collider.tag == "Platform"))
+        {
+            hasLeftGround = false;
             playerState.isjumping = false;
             jumpSpeed = startingJumpSpeed;
 

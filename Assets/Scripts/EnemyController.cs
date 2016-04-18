@@ -15,7 +15,9 @@ public class EnemyController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        MoveEnemy();
+        if (Time.timeScale != 0)
+            MoveEnemy();
+
         CheckForEdge();
 	}
 
@@ -41,7 +43,7 @@ public class EnemyController : MonoBehaviour {
           CheckCollider(hitleft);
         }
 
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up, gameObject.GetComponent<Renderer>().bounds.size.y/2 + .01f); //transform.lossyScale.y/2 +
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up, gameObject.GetComponent<Renderer>().bounds.size.y/2 + .04f); //transform.lossyScale.y/2 +
         if (hit.collider == null)
         {
             ChangeDirection();

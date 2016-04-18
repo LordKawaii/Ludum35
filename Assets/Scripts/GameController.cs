@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameController : MonoBehaviour {
     public Text healthText;
     public GameObject player;
 	public Text gameOverText;
 	public Text winText;
-	[HideInInspector]
+
+
+    [HideInInspector]
 	public bool hasWon = false;
 
     PlayerController playerCon;
@@ -15,6 +18,7 @@ public class GameController : MonoBehaviour {
     // Use this for initialization
     void Start () {
 	    playerCon = player.GetComponent<PlayerController>();
+        Time.timeScale = 0f;
     }
 	
 	// Update is called once per frame
@@ -22,13 +26,16 @@ public class GameController : MonoBehaviour {
         if (healthText != null)
             UpDateHealth();
 
-		if (gameOverText != null)
+        if (gameOverText != null && player == null)
 		{
 			gameOverText.enabled = true;
 		}
 
 		if (winText != null && hasWon == true)
 			winText.enabled = true;
+
+        if (Input.GetKey(KeyCode.R) && (hasWon || player == null))
+            Application.LoadLevel(Application.loadedLevel);
 	}
 
     void UpDateHealth ()

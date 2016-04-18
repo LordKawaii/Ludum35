@@ -96,7 +96,7 @@ public class PlayerController : MonoBehaviour {
 			rb2d.velocity = rb2d.velocity.normalized * waterSlowdown;
 		}
 		
-        if (col.tag == "Enemy")
+        if (col.tag == "Enemy" || col.tag == "JumpingEnemy")
         {
             if (!playerState.isInvuln)
             {
@@ -105,24 +105,7 @@ public class PlayerController : MonoBehaviour {
                 else
                 {
                     playerState.isInvuln = true;
-                    playerState.health -= col.gameObject.GetComponent<EnemyController>().damageAmount;
-                    StartCoroutine(Invuln());
-                    if (hurtParticals != null)
-                        hurtParticals.Play();
-                }
-            }
-        }
-
-        if (col.tag == "JumpingEnemy")
-        {
-            if (!playerState.isInvuln)
-            {
-                if (playerState.health <= 0)
-                    Destroy(gameObject);
-                else
-                {
-                    playerState.isInvuln = true;
-                    playerState.health -= col.gameObject.GetComponent<JumpingEnemyController>().damageAmount;
+                    playerState.health -= col.gameObject.GetComponent<EnemyStates>().damage;
                     StartCoroutine(Invuln());
                     if (hurtParticals != null)
                         hurtParticals.Play();

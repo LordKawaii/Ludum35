@@ -5,6 +5,10 @@ using System.Collections;
 public class GameController : MonoBehaviour {
     public Text healthText;
     public GameObject player;
+	public Text gameOverText;
+	public Text winText;
+	[HideInInspector]
+	public bool hasWon = false;
 
     PlayerController playerCon;
 
@@ -17,6 +21,14 @@ public class GameController : MonoBehaviour {
 	void Update () {
         if (healthText != null)
             UpDateHealth();
+
+		if (gameOverText != null)
+		{
+			gameOverText.enabled = true;
+		}
+
+		if (winText != null && hasWon == true)
+			winText.enabled = true;
 	}
 
     void UpDateHealth ()

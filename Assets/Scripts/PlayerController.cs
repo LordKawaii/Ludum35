@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour {
 	public float waterSlowdown = .8f;
     public ParticleSystem jumpParticals;
     public ParticleSystem hurtParticals;
+    public ParticleSystem morphParticals;
 
     public List<Sprite> landSprites;
     public List<Sprite> seaSprites;
@@ -147,7 +148,7 @@ public class PlayerController : MonoBehaviour {
             else
                 ChangeSprite(SpriteActions.WalkRight);
 
-            gameObject.transform.position = new Vector3(transform.position.x + horSpeed, transform.position.y);
+            gameObject.transform.position = new Vector3(transform.position.x + horSpeed * Time.deltaTime, transform.position.y);
         }
         else 
             ChangeSprite(SpriteActions.Stand);

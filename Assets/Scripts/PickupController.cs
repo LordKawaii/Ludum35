@@ -10,6 +10,7 @@ public enum PickupType
 public class PickupController : MonoBehaviour {
     public float rotationSpeed = 1f;
     public PickupType pickupType;
+    public AudioClip morphSound;
 
     // Use this for initialization
     void Start () {
@@ -36,6 +37,10 @@ public class PickupController : MonoBehaviour {
                 player.playerState.canGlide = true;
                 player.playerState.canEnterWater = false;
             }
+            player.morphParticals.Play();
+            AudioSource gameConAuSource = GameObject.FindGameObjectWithTag("GameController").GetComponent<AudioSource>();
+            gameConAuSource.clip = morphSound;
+            gameConAuSource.Play();
             Destroy(gameObject);
         }
     }

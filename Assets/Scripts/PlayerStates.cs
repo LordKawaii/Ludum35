@@ -9,6 +9,8 @@ public class PlayerStates {
     public bool isInWater = false;
     public bool hasFlapped = false;
     public bool isInvuln = false;
+    public bool isTransformingRed = false;
+    public bool isTransformingGray = false;
 
     public float health = 100;
 

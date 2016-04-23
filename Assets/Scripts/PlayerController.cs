@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour {
     public float InvulnTime = 1f;
     public float InvulnFlashTime = .2f;
 	public float waterSlowdown = .8f;
+    public float swimForce = 80f;
+
     public ParticleSystem jumpParticals;
     public ParticleSystem hurtParticals;
     public ParticleSystem morphParticals;
@@ -43,13 +45,14 @@ public class PlayerController : MonoBehaviour {
     AudioSource auSource;
     Rigidbody2D rb2d;
     bool hasLeftGround = false;
+    GameController gameCon;
 	// Use this for initialization
 	void Start () {
         playerState = new PlayerStates();
         jumpSpeed = startingJumpSpeed;
         spriteRend = GetComponent<SpriteRenderer>();
         auSource = GetComponent<AudioSource>();
-
+        gameCon = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
     }
 
 	// Update is called once per frame
@@ -59,81 +62,13 @@ public class PlayerController : MonoBehaviour {
 
     void FixedUpdate ()
     {
-        MovePlayer();
+        if (!gameCon.gameIsPaused)
+            MovePlayer();
+
         CheckForGround();
     }
 
-    void OnCollisionStay2D(Collision2D collision)
-    {
-        if (collision.gameObject.tag == "Platform")
-            playerState.insidePlatform = true;
-    }
-
-    void OnCollisionExit2D(Collision2D col)
-    {
-        if (col.gameObject.tag == "Platform")
-            playerState.insidePlatform = false;
-    }
-
-    void OnTriggerStay2D (Collider2D col)
-    {
-        if (col.tag == "Water")
-        {
-            rb2d.gravityScale = waterGrav;
-            if (!playerState.isInWater)
-                jumpSpeed /= waterJumpDevider;
-            playerState.isInWater = true;
-        }
-    }
-
-    void OnTriggerExit2D(Collider2D col)
-    {
-        if (col.tag == "Water")
-        {
-            rb2d.gravityScale = 1;
-            if (playerState.isInWater)
-                jumpSpeed *= waterJumpDevider;
-            playerState.isInWater = false;
-            auSource.clip = exitWater;
-            if (!auSource.isPlaying)
-                auSource.Play();
-        }
-
-    }
-
-    void OnTriggerEnter2D(Collider2D col)
-    {
-		if (col.tag == "Water") 
-		{
-			rb2d.velocity = rb2d.velocity.normalized * waterSlowdown;
-            auSource.clip = enterWater;
-            if (!auSource.isPlaying)
-                auSource.Play();
-        }
-		
-        if (col.tag == "Enemy" || col.tag == "JumpingEnemy")
-        {
-            if (!playerState.isInvuln)
-            {
-                {
-                    playerState.isInvuln = true;
-                    playerState.health -= col.gameObject.GetComponent<EnemyStates>().damage;
-                    StartCoroutine(Invuln());
-                    if (hurtParticals != null)
-                        hurtParticals.Play();
-                    auSource.clip = hurtSounds[Random.Range(0, jumpSounds.Count)];
-                    if (!auSource.isPlaying)
-                        auSource.Play();
-                }
-            }
-
-            if (playerState.health <= 0)
-            { 
-                Destroy(gameObject);
-            }
-        }
-
-    }
+   
 
     void MovePlayer()
     {
@@ -159,9 +94,7 @@ public class PlayerController : MonoBehaviour {
             rb2d.AddForce(Vector2.up * jumpSpeed);
             playerState.isjumping = true;
             ChangeSprite(SpriteActions.Stand);
-            auSource.clip = jumpSounds[Random.Range(0, jumpSounds.Count)];
-            if (!auSource.isPlaying)
-                auSource.Play();
+            PlaySound(jumpSounds[Random.Range(0, jumpSounds.Count)]);
         }
 
         if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && playerState.isInWater && rb2d.velocity.y < 3)
@@ -184,15 +117,13 @@ public class PlayerController : MonoBehaviour {
             {
                 rb2d.velocity = new Vector2(rb2d.velocity.x, -1);
             }
-            rb2d.AddForce(Vector2.up * flapForce);
+            rb2d.AddForce(Vector2.up * flapForce * Time.deltaTime);
             playerState.hasFlapped = true;
             if (jumpParticals != null)
                 jumpParticals.Play();
             ChangeSprite(SpriteActions.Stand);
 
-            auSource.clip = flySounds[Random.Range(0, jumpSounds.Count)];
-            if (!auSource.isPlaying)
-                auSource.Play();
+            PlaySound(flySounds[Random.Range(0, jumpSounds.Count)]);
         }
         if (!Input.GetButton("Vertical") && !Input.GetButton("Fire1"))
             playerState.hasFlapped = false;
@@ -206,7 +137,7 @@ public class PlayerController : MonoBehaviour {
         if ((Input.GetAxis("Vertical") > 0 || Input.GetButton("Fire1")) && playerState.isInWater && rb2d.velocity.y < 5)
         {
             //gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + jumpSpeed);
-            rb2d.AddForce(Vector2.up * 80);
+            rb2d.AddForce(Vector2.up * swimForce);
             ChangeSprite(SpriteActions.Stand);
         }
 
@@ -224,7 +155,7 @@ public class PlayerController : MonoBehaviour {
         {
             hasLeftGround = true;
         }
-        if (hit.collider != null && !playerState.insidePlatform && hasLeftGround && (hit.collider.tag == "Ground" || hit.collider.tag == "Platform"))
+        if (hit.collider != null && !playerState.insidePlatform && hasLeftGround && !playerState.isInWater && (hit.collider.tag == "Ground" || hit.collider.tag == "Platform"))
         {
             hasLeftGround = false;
             playerState.isjumping = false;
@@ -233,9 +164,18 @@ public class PlayerController : MonoBehaviour {
         }
         else if (hit.collider != null && hit.collider.tag == "Water")
         {
-            playerState.isjumping = false;
             jumpSpeed /= waterJumpDevider;
         }
+    }
+
+    public void PlaySound(AudioClip auClip)
+    {
+        if (!auSource.isPlaying)
+        {
+            auSource.clip = auClip;
+            auSource.Play();
+        }
+            
     }
 
     void ChangeSprite(SpriteActions action)
@@ -277,6 +217,75 @@ public class PlayerController : MonoBehaviour {
         else
             return landSprites;
     }
+    
+    ///////////////////////////////////////////////////////OnTrigger and OnCollisions
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Platform")
+            playerState.insidePlatform = true;
+    }
+
+    void OnCollisionExit2D(Collision2D col)
+    {
+        if (col.gameObject.tag == "Platform")
+            playerState.insidePlatform = false;
+    }
+
+    void OnTriggerStay2D(Collider2D col)
+    {
+        if (col.tag == "Water")
+        {
+            rb2d.gravityScale = waterGrav;
+            if (!playerState.isInWater)
+                jumpSpeed /= waterJumpDevider;
+            playerState.isInWater = true;
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D col)
+    {
+        if (col.tag == "Water")
+        {
+            rb2d.gravityScale = 1;
+            if (playerState.isInWater)
+                jumpSpeed *= waterJumpDevider;
+            playerState.isInWater = false;
+            PlaySound(exitWater);
+        }
+
+    }
+
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.tag == "Water")
+        {
+            rb2d.velocity = rb2d.velocity.normalized * waterSlowdown;
+            PlaySound(enterWater);
+        }
+
+        if (col.tag == "Enemy" || col.tag == "JumpingEnemy")
+        {
+            if (!playerState.isInvuln)
+            {
+                {
+                    playerState.isInvuln = true;
+                    playerState.health -= col.gameObject.GetComponent<EnemyStates>().damage;
+                    StartCoroutine(Invuln());
+                    if (hurtParticals != null)
+                        hurtParticals.Play();
+                    PlaySound(hurtSounds[Random.Range(0, jumpSounds.Count)]);
+                }
+            }
+
+            if (playerState.health <= 0)
+            {
+                Destroy(gameObject);
+            }
+        }
+
+    }
+    ///////////////////////////////////////////////////////End of trigger/collision
+
 
     public IEnumerator Invuln()
     {
@@ -297,5 +306,7 @@ public class PlayerController : MonoBehaviour {
 
         yield return null;
     }
+
+
 
 }

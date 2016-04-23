@@ -11,6 +11,7 @@ public class PickupController : MonoBehaviour {
     public float rotationSpeed = 1f;
     public PickupType pickupType;
     public AudioClip morphSound;
+    public bool playSound = false;
 
     // Use this for initialization
     void Start () {
@@ -31,16 +32,17 @@ public class PickupController : MonoBehaviour {
             { 
                 player.playerState.canEnterWater = true;
                 player.playerState.canGlide = false;
+                player.playerState.isTransformingRed = true;
             }
             if (pickupType == PickupType.Flight)
             { 
                 player.playerState.canGlide = true;
                 player.playerState.canEnterWater = false;
+                player.playerState.isTransformingGray = true;
             }
             player.morphParticals.Play();
-            AudioSource gameConAuSource = GameObject.FindGameObjectWithTag("GameController").GetComponent<AudioSource>();
-            gameConAuSource.clip = morphSound;
-            gameConAuSource.Play();
+            if (playSound)
+                player.PlaySound(morphSound);
             Destroy(gameObject);
         }
     }

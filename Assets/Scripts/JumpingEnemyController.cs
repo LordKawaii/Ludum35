@@ -8,13 +8,12 @@ public class JumpingEnemyController : MonoBehaviour {
     public float spinForce = 10;
     public int damageAmount = 10;
 
-    float jumpTimer;
     bool jumpedLeft = false;
     Rigidbody2D rb2d;
 
 	// Use this for initialization
 	void Start () {
-        jumpTimer = Time.time + timeTillJump;
+        StartCoroutine(Jump(timeTillJump));
         rb2d = GetComponent<Rigidbody2D>();
 	}
 	
@@ -27,9 +26,14 @@ public class JumpingEnemyController : MonoBehaviour {
             if (hit.collider.tag == "Ground" || hit.collider.tag == "Platform")
                 rb2d.isKinematic = true;
         }
+    }
 
-        if (jumpTimer <= Time.time)
+    IEnumerator Jump (float waitTime)
+    {
+        while (true)
         {
+            yield return new WaitForSeconds(waitTime);
+            yield return new WaitForEndOfFrame();
             if (jumpedLeft == false)
             {
                 rb2d.isKinematic = false;
@@ -44,8 +48,6 @@ public class JumpingEnemyController : MonoBehaviour {
                 rb2d.AddTorque(-spinForce);
                 jumpedLeft = false;
             }
-
-            jumpTimer = Time.time + timeTillJump;
         }
 
     }

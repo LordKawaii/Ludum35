@@ -14,6 +14,8 @@ public class GameController : MonoBehaviour {
 	public bool hasWon = false;
     [HideInInspector]
     public bool gameHasStarted = false;
+    [HideInInspector]
+    public bool gameIsPaused = false;
 
     PlayerController playerCon;
 

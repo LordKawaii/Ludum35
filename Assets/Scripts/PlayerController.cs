@@ -155,13 +155,16 @@ public class PlayerController : MonoBehaviour {
         {
             hasLeftGround = true;
         }
-        if (hit.collider != null && !playerState.insidePlatform && hasLeftGround && !playerState.isInWater && (hit.collider.tag == "Ground" || hit.collider.tag == "Platform"))
+        if (hit.collider != null)
         {
-            hasLeftGround = false;
-            playerState.isjumping = false;
-            jumpSpeed = startingJumpSpeed;
+            if (!playerState.insidePlatform && hasLeftGround && !playerState.isInWater && (hit.collider.tag == "Ground" || hit.collider.tag == "Platform") && rb2d.velocity.y <= 0)
+			{
+				hasLeftGround = false;
+				playerState.isjumping = false;
+				jumpSpeed = startingJumpSpeed;
+			}
 
-        }
+		}
         else if (hit.collider != null && hit.collider.tag == "Water")
         {
             jumpSpeed /= waterJumpDevider;
